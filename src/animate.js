@@ -1,79 +1,57 @@
+
   /* Animate JS
      Copyright Alistair MacDonald
      License: CC3 */
+
 (function( window ){
 
-  'use strict';
-
-  // Main Interface for Creating Animation Timelines
-  function animate () {
-    
-    // var args = arguments;
-
-    // if (args.length){
-      return Timeline(arguments);
-    // }
-
-    // return globalTransportControl;
-  }
-
-  // Easing
-  //////////////////////////////////////////////////////////////////////////////
   var ease = {
-    linear: function (x, t, b, c, d) {
-      return c*t/d + b;
+    linear: function (x,t,b,c,d) {
+      return c*t/d+b
     }
   };
-
-  function set (obj, prop, val) {
-    console.log(obj, prop, val);
-  }
-
+  
+  // Global Variables
   var timelinePlayStack = {}
     , timelineCounter = 0
-    , interval = null  
-    , fps = 24
+    , intervalTimer = null
+    , framesPerSecond = 24
     ;
 
-  // Add a nre timeline to the stakc and return it to the user
-
+  // Add a timeline to the play stack
   function addTimelineToPlayStack (timeline) {
     timelinePlayStack[timelineCounter] = timeline;
     timelineCounter+=1;
   };
 
+  // Remove a timeline from the play stack
   function removeTimelineFromPlayStack (index) {
     delete timelinePlayStack[index];
   };
 
-  // Global Animation Controls (all timelines run from the same timer) //
+  // Initialize the global timer
+  function initTimer () {
     
-  // Plays all timelines from their current positions
-  function playAll () {
-        
-    // start = time();
-    
-    function onInterval () {
+    // On every interval...
+    function eachInterval () {
+      var currentTime = timeNow()
+        , index
+        ;
+
+      // Increment through the playstack and update the individual timelines
       for (var index in timelinePlayStack) {
-        var timeline = timelinePlayStack[index];
-        timeline.time( timeNow() );
+        timelinePlayStack[index].time(currentTime);
       }
     }
 
-    interval = setInterval(onInterval, 1000 / fps);
-
+    // Fire the timer on each interval
+    intervalTimer = setInterval(eachInterval, 1000 / framesPerSecond);
   };
   
-  // Stop all timelines in their tracks
-  // 
+  // Stop all timelines
   function stopAll () {
-    
     clearInterval(interval);
-
   };
-
-
-
 
 
   function getActorType (actor) {
@@ -84,142 +62,148 @@
     return (+new Date());
   }
 
+  // Global Namespace "Animate" becomes public interface
+  // ...Returns controls to a timeline object
 
-
-  // Timeline Object
-  function Timeline (args) {
-
-    var objectsToAnimate = args.length
-      , i = 0
-      ;
-
+  
+  function animate () {
+    // var objectsToAnimate = args.length
+    //   , i = 0
+    //   ;
+    
     // Encapsulate Timeline Object
-    return (function () {
+    return (function (args) {
 
-      // Define Timeline Object Globals
-      var actors = []
-        , frames = []
+
+      // Private Timeline Member-Variables
+      var objectsToAnimate = args.length
+        , i = 0
+
+        , actorStore = []
+        , trackStore = []
+        , t=0
         , playhead = 0
-        , lastMS = timeNow()
-        , framesPerSecond = 4
+        , lastPlayhead = timeNow()
+        , actorObject
+        , framesObject
+        , tracksAndFrames
+        , frame
+        , value
+        , track
         , index
+        , framesArray
+        , valuesArray
         ;
 
       // Loop through the argument pairs
       for (; i< objectsToAnimate; i+=2) {
 
-        // Add the Actor object and the Timeline Frames to the timeline object
-        var actorObject = args[i]
-          // , actorType = getActorType( actorObject )
-          , tracksAndFrames = args[i+1]
-          , tracksToAnimate
-          , framesObject
-          , frame
-          , value
-          , track
-          ;
-
+        actorObject = args[i];
+        actorStore[t] = actorObject;
+        
+        tracksAndFrames = args[i+1];
 
         // Shuffle the frames object into an array (optimize for animating later)
         for (track in tracksAndFrames) {
+
           framesObject = tracksAndFrames[track];
           
           // Associative array (optimization)
-          var framesArray = []
-            , valuesArray = []
-            ;
+          framesArray = [];
+          valuesArray = [];
 
           for (frame in framesObject) {
-            framesArray.push(frame);
+            framesArray.push(parseFloat(frame));
             valuesArray.push(framesObject[frame]);
           }
           
-          tracksAndFrames[track] = [framesArray, valuesArray];
+          trackStore[t] = {};
+          trackStore[t][track] = [framesArray, valuesArray];
+          t++;
         }
 
       }
 
       function update () {
-
-        // var relativeTime = (ms-startTime)/1000
-        var relativeTime = playhead
-          , fromValue, fromFrame , toValue, toFrame
-          , frames, values, track, trackName
-          , i, l
+        var value, fromValue, fromFrame, toValue, toFrame
+          , frames, values, trackName, lastFrame
+          , i=0, j=0, k
+          , l=actorStore.length
+          , actorObject
+          , trackObject
           ;
 
-        for (trackName in tracksAndFrames) {
-          track = tracksAndFrames[trackName];
-          frames = track[0];
-          values = track[1];
-        
-          fromFrame = frames[0];
-          fromValue = values[0];
-          toFrame = frames[1];
-          toValue = values[1];
+        for (; i< l; i+=1) {
 
-        for (i=1, l=frames.length; i< l; i+=1) {
-          if (relativeTime >= frames[i]) {
-            fromFrame = parseFloat(frames[i]);
-            fromValue = values[i];
-            toFrame = parseFloat(frames[i+1]);
-            toValue = values[i+1];
+          actorObject = actorStore[i];
+          trackObject = trackStore[i];  
+
+          for (trackName in trackObject) {
+
+            frames = trackObject[trackName][0];
+            values = trackObject[trackName][1];
+
+            lastFrame = frames.length;
+
+            fromFrame = frames[0];
+            fromValue = values[0];
+            toFrame = frames[1];
+            toValue = values[1];
+
+            for (j=1, k=lastFrame; j< k; j+=1) {
+
+              if (playhead >= frames[j]) {
+                fromFrame = frames[j];
+                fromValue = values[j];
+                toFrame = frames[j+1];
+                toValue = values[j+1];
+                if (j===lastFrame-1) {
+                  toFrame = fromFrame;
+                  toValue = fromValue;
+                }
+              }
+            }
+
+            // console.log(fromFrame, fromValue, toFrame, toValue, playhead);
+
+            value = ease.linear(0, playhead-fromFrame, fromValue, toValue-fromValue, toFrame-fromFrame);
+
+            actorObject.setAttribute(trackName, value);
+            // console.log(actorObject.id);
           }
         }
-
-        var value = ease.linear(0,
-          relativeTime-fromFrame,
-          fromValue,
-          toValue-fromValue,
-          toFrame-fromFrame
-        );
-        actorObject.setAttribute(trackName, value);
-
-        // console.log('time:',parseFloat(relativeTime.toFixed(2)), ' fromF:',parseFloat(fromFrame), ' fromV:',fromValue, ' toF:',toFrame, ' toV:',toValue);
-
-        }
-        
       };
 
-      // Export Timeline Interface
+      
+
+      // Timeline Controls
       
       return {
                 
-        // init: function () {
-        //   return addTimelineToPlayStack(this);
-        // },
-
-        // Play the animation
-        ////////////////////////////////////////////////////////////////////////////////////////////
-
         play: function () {
           index = timelineCounter;
-          lastMS = timeNow();
           addTimelineToPlayStack(this);
+          lastPlayhead = timeNow();
         },
 
-        // Stop the animation
-        
+        // Stop the animation        
         pause: function () {
           removeTimelineFromPlayStack(index);
           index = false;
         },
 
-
-        time: function (ms) {
+        // 
+        time: function (currentTime) {
           if (index !== false) {
-            playhead += (ms-lastMS)/1000
+            playhead += (currentTime-lastPlayhead)/1000
             update();
-            lastMS = ms;
+            lastPlayhead = currentTime;
           }
         },
 
         reset: function () {
-          playhead = 0
+          playhead = 0;
         },
-
-        // Set the speed (fraction)
-        ////////////////////////////////////////////////////////////////////////////////////////////
 
         // speed: function () {
           
@@ -235,16 +219,29 @@
 
       };
       
-    } ());
+    } (arguments));
 
   }
 
-  // Expose animate to window
+  // 
+
+  // Expose animate intercace to the window
   
   window.animate = animate;
 
-  // Play all timelines
+  // Begin the global timer
   
-  playAll();
+  initTimer();
 
 })( this );
+
+
+
+
+
+
+
+
+
+
+
