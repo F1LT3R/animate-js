@@ -175,7 +175,7 @@
         }
 
         // Calculate the interpolated animation value based on the last/current/next values
-        returnValue = extend.easing.linear(0, playhead-fromFrame, fromValue, toValue-fromValue, toFrame-fromFrame);
+        returnValue = extend.easing[easeType](0, playhead-fromFrame, fromValue, toValue-fromValue, toFrame-fromFrame);
 
         // If there is an update callback...
         if (onUpdateCallback) {
@@ -251,8 +251,8 @@
 
         // Very basic extend function, currently just used to extend easing when needed
         extend: function (ref, obj) {
-          for (var i in obj) {
-            extend[ref][i] = obj[i];
+          for (var key in obj) {
+            extend[ref][key] = obj[key];
           }
         }
 
