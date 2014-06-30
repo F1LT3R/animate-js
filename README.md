@@ -22,7 +22,7 @@ This code is free to use and distribute with attribution under the MIT License.
 
 Bitcoin donations are always welcome if you use this code or find it helpful:
 
-<a class="coinbase-button" data-code="684007a4c9198aaf59a4cbf2b45a6472" data-button-style="donation_small" href="https://coinbase.com/checkouts/684007a4c9198aaf59a4cbf2b45a6472">Donate Bitcoins<img src="https://coinbase.com/assets/buttons/donation_small-77a6e527206c0407ffd8b2e8b76556b0.png"></a><script src="https://coinbase.com/assets/button.js" type="text/javascript"></script>
+<a class="coinbase-button" data-code="684007a4c9198aaf59a4cbf2b45a6472" data-button-style="donation_small" href="https://coinbase.com/checkouts/684007a4c9198aaf59a4cbf2b45a6472"><img src="https://coinbase.com/assets/buttons/donation_small-77a6e527206c0407ffd8b2e8b76556b0.png"></a><script src="https://coinbase.com/assets/button.js" type="text/javascript"></script>
 
 ##License
 
