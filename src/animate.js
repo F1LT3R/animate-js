@@ -16,7 +16,7 @@
     
     // Easing functions
     easing: {
-      linear: function (x, t, b, c, d) {
+      linear: function (t, b, c, d) {
         return c*t/d+b;
       }
     }
@@ -118,21 +118,37 @@
         easeType = args[2] || 'linear',
 
         // Public callbacks
-        onUpdateCallback=null,
-        onEndCallback=null,
+        onUpdateCallback, onEndCallback,
 
         // Associative array, used to optimize
         framesArray = [], valuesArray = [],
         
         // Key index for each frame in the track
-        frame;
+        frame,
+
+        i=0, l;
 
       // Shuffle the frames object into an array (optimize for animating later)
+      // ...we do this using an associative array, re-ordering due to JS objs being sorted by alpha
+
+      // Loop through the frames object
       for (frame in track) {
+        
+        // Create an array from the object containing the float values of the frames (seconds)
         framesArray.push(parseFloat(frame));
-        valuesArray.push(track[frame]);
       }
+
+      // Sort the array (because values like .5 will be sorted alphabetically, we want numeric sort)
+      framesArray.sort();
       
+      // Optimize by caching length of the array
+      l = framesArray.length;
+
+      // Create the values array based on the correct ordering of the frames array
+      for (; i< l; i+=1) {
+        valuesArray.push(track[framesArray[i]]);
+      }
+  
       track = [framesArray, valuesArray];
 
 
@@ -175,7 +191,7 @@
         }
 
         // Calculate the interpolated animation value based on the last/current/next values
-        returnValue = extend.easing[easeType](0, playhead-fromFrame, fromValue, toValue-fromValue, toFrame-fromFrame);
+        returnValue = extend.easing[easeType](playhead-fromFrame, fromValue, toValue-fromValue, toFrame-fromFrame);
 
         // If there is an update callback...
         if (onUpdateCallback) {
