@@ -44,8 +44,8 @@
   
   // Add a timeline to the play stack
   function addTimelineToPlayStack (timeline) {
-    timelinePlayStack[timelineCounter] = timeline;
     timelineCounter+=1;
+    timelinePlayStack[timelineCounter] = timeline;
   }
 
 
@@ -230,8 +230,11 @@
 
         // Restarts this animation timeline by resetting the playhead to 0
         restart: function () {
+          removeTimelineFromPlayStack(uuid);
+          uuid = timelineCounter;
+          addTimelineToPlayStack(this);
+          lastPlayhead = timeNow();
           playhead = 0;
-          return this;
         },
 
         // Sets the onUpdateCallback that is fired after each call to currenTime() from global timer
@@ -249,8 +252,7 @@
         // Very basic extend function, currently just used to extend easing when needed
         extend: function (ref, obj) {
           for (var i in obj) {
-            // console.log(i, obj, obj[i]);
-            // extend[ref][i] = obj;
+            extend[ref][i] = obj[i];
           }
         }
 
