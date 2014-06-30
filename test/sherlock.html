@@ -21,27 +21,37 @@
 
 <script type="text/javascript">
 
-  var sherlock = document.getElementById('sherlock')
-    , sherlock2 = document.getElementById('sherlock2')
-    ;
-
-  var timeline = animate(
-    sherlock, {
-      opacity: {
-        0: 1,
-        2: 0,
-        4: 1,
-      }
-    },
-    sherlock2, {
-      opacity: {
-        0: 1,
-        2: 0,
-        4: 1,
+  // Add a new easing method to the options
+  animate().extend('easing', {
+    inOutQuad: function (x, t, b, c, d) {
+      if ((t/=d/2) < 1) {
+        return c/2*t*t + b;
+      } else {
+        return -c/2 * ((--t)*(t-2) - 1) + b;
       }
     }
-  );
+  });
 
+  var sherlock = document.getElementById('sherlock'),
+      sherlock2 = document.getElementById('sherlock2');
+  
+  function changeOpacity (obj, val) {
+    obj.setAttribute('opacity', val);
+    // console.log(val);
+  }
+
+  function animationEnded (obj, val) {
+    console.log('Animation ended!');
+  }
+
+  var timeline = animate(sherlock, {
+      0: 1,
+      2: 0,
+      4: 1
+    }, 'linear')
+    .onUpdate(changeOpacity)
+    .onEnd(animationEnded);
+    
   timeline.play();
 
 </script>

@@ -1,220 +1,257 @@
-
-  /* Animate JS
-     Copyright Alistair MacDonald
-     License: CC3 */
+/* Animate JS
+   Alistair MacDonald
+   MIT License */
 
 (function( window ){
 
-  var ease = {
-    linear: function (x,t,b,c,d) {
-      return c*t/d+b
-    }
-  };
-  
-  // Global Variables
-  var timelinePlayStack = {}
-    , timelineCounter = 0
-    , intervalTimer = null
-    , framesPerSecond = 24
-    ;
+  "use strict";
 
+
+
+  // EXTEND
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // Used to extend the library, such as adding easing options
+  var extend = {
+    
+    // Easing functions
+    easing: {
+      linear: function (x, t, b, c, d) {
+        return c*t/d+b;
+      }
+    }
+
+  };
+
+
+
+
+  // DEFINE GLOBALS
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  // Any timeline added to this stack becomes active (is playing)
+  var timelinePlayStack = {},
+      
+      // Counter used to create UUID's for each active timeline
+      timelineCounter = 0,
+      
+      // The global JavaScript timer that from which all timelines are updated
+      intervalTimer = null,
+      
+      // Set the frames second
+      framesPerSecond = 24;
+
+  
   // Add a timeline to the play stack
   function addTimelineToPlayStack (timeline) {
     timelinePlayStack[timelineCounter] = timeline;
     timelineCounter+=1;
-  };
+  }
+
 
   // Remove a timeline from the play stack
-  function removeTimelineFromPlayStack (index) {
-    delete timelinePlayStack[index];
-  };
+  function removeTimelineFromPlayStack (uuid) {
+    delete timelinePlayStack[uuid];
+  }
+
 
   // Initialize the global timer
   function initTimer () {
     
     // On every interval...
     function eachInterval () {
-      var currentTime = timeNow()
-        , index
-        ;
+      var currentTime = timeNow(), uuid;
 
       // Increment through the playstack and update the individual timelines
-      for (var index in timelinePlayStack) {
-        timelinePlayStack[index].time(currentTime);
+      for (uuid in timelinePlayStack) {
+        timelinePlayStack[uuid].update(currentTime);
       }
     }
 
     // Fire the timer on each interval
-    intervalTimer = setInterval(eachInterval, 1000 / framesPerSecond);
-  };
-  
-  // Stop all timelines
-  function stopAll () {
-    clearInterval(interval);
-  };
-
-
-  function getActorType (actor) {
-    // console.log(actor.tagName);
+    intervalTimer = setInterval(eachInterval, 1000/framesPerSecond);
   }
 
+
+  // Gets the current Epoch Time
   function timeNow (){
     return (+new Date());
   }
 
-  // Global Namespace "Animate" becomes public interface
-  // ...Returns controls to a timeline object
 
-  
+
+  // NAMESPACE
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // Global Namespace "Animate" becomes public interface
+  // ...returns the control interface to the instantiated timeline object  
   function animate () {
-    // var objectsToAnimate = args.length
-    //   , i = 0
-    //   ;
+
+
+
+    // CONSTRUCT
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     
     // Encapsulate Timeline Object
     return (function (args) {
+      
+      // The Universally Unique Identifier this timeline is resigstered by in the timelinePlayStack
+      // ...the UUID is updated whenever timeline is added back to the timelinePlayStack
+      var uuid,
+          
+        // Playhead represents the current time of the animation
+        playhead = 0,
 
+        // Assume we want to start playing the newly created animation... 'right now'
+        lastPlayhead = timeNow(),
 
-      // Private Timeline Member-Variables
-      var objectsToAnimate = args.length
-        , i = 0
+        // The UUID of this timeline
+        uuid,
 
-        , actorStore = []
-        , trackStore = []
-        , t=0
-        , playhead = 0
-        , lastPlayhead = timeNow()
-        , actorObject
-        , framesObject
-        , tracksAndFrames
-        , frame
-        , value
-        , track
-        , index
-        , framesArray
-        , valuesArray
-        ;
-
-      // Loop through the argument pairs
-      for (; i< objectsToAnimate; i+=2) {
-
-        actorObject = args[i];
-        actorStore[t] = actorObject;
+        // The first argument passed is the object on which to act, the 'actor' on the stage
+        actor = args[0],
+      
+        // A 'track' contains values of a given property at specific times (in seconds)
+        track = args[1],
         
-        tracksAndFrames = args[i+1];
+        // The type of easing to use for this timeline
+        easeType = args[2] || 'linear',
 
-        // Shuffle the frames object into an array (optimize for animating later)
-        for (track in tracksAndFrames) {
+        // Public callbacks
+        onUpdateCallback=null,
+        onEndCallback=null,
 
-          framesObject = tracksAndFrames[track];
-          
-          // Associative array (optimization)
-          framesArray = [];
-          valuesArray = [];
+        // Associative array, used to optimize
+        framesArray = [], valuesArray = [],
+        
+        // Key index for each frame in the track
+        frame;
 
-          for (frame in framesObject) {
-            framesArray.push(parseFloat(frame));
-            valuesArray.push(framesObject[frame]);
+      // Shuffle the frames object into an array (optimize for animating later)
+      for (frame in track) {
+        framesArray.push(parseFloat(frame));
+        valuesArray.push(track[frame]);
+      }
+      
+      track = [framesArray, valuesArray];
+
+
+
+  // METHOD: UPDATE ANIMATION
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+
+      // Interpolates the animation value every time every global interval timer ticks
+      // .. passes the value back to onUpdate() alongwith the actor object reference
+      function updateTime() {
+        
+        var frames = track[0],
+            values = track[1],
+
+            fromFrame = frames[0],
+            fromValue = values[0],
+            toFrame = frames[1],
+            toValue = values[1],
+            
+            i = 1,
+            lastFrame = frames.length,
+            
+            returnValue;
+
+        // TODO: Remmeber last frame, so we don't loop through all the frames?
+        // Is remembering which frame we were at last actually optimal for the kinds of
+        // animations this code is designed for? Probably not.
+
+        for (; i< lastFrame; i+=1) {
+          if (playhead >= frames[i]) {
+            fromFrame = frames[i];
+            fromValue = values[i];
+            toFrame = frames[i+1];
+            toValue = values[i+1];
+            if (i===lastFrame-1) {
+              toFrame = fromFrame;
+              toValue = fromValue;
+            }
           }
-          
-          trackStore[t] = {};
-          trackStore[t][track] = [framesArray, valuesArray];
-          t++;
+        }
+
+        // Calculate the interpolated animation value based on the last/current/next values
+        returnValue = extend.easing.linear(0, playhead-fromFrame, fromValue, toValue-fromValue, toFrame-fromFrame);
+
+        // If there is an update callback...
+        if (onUpdateCallback) {
+          // ...and the return value is a number...
+          if(!isNaN(returnValue)) {
+            // Pass the actor and the animation property value back
+            onUpdateCallback(actor, returnValue);
+          }
+        }
+
+        // If there is an onEnd callback...
+        if (onEndCallback) {
+          // ...and the animation has reached the end...
+          if (playhead >= frames[lastFrame-1]) {
+            // Pass the actor and value back to the end callback
+            onEndCallback(actor, returnValue);
+            // Stop the timeline from playing
+            removeTimelineFromPlayStack(uuid);
+          }
         }
 
       }
 
-      function update () {
-        var value, fromValue, fromFrame, toValue, toFrame
-          , frames, values, trackName, lastFrame
-          , i=0, j=0, k
-          , l=actorStore.length
-          , actorObject
-          , trackObject
-          ;
-
-        for (; i< l; i+=1) {
-
-          actorObject = actorStore[i];
-          trackObject = trackStore[i];  
-
-          for (trackName in trackObject) {
-
-            frames = trackObject[trackName][0];
-            values = trackObject[trackName][1];
-
-            lastFrame = frames.length;
-
-            fromFrame = frames[0];
-            fromValue = values[0];
-            toFrame = frames[1];
-            toValue = values[1];
-
-            for (j=1, k=lastFrame; j< k; j+=1) {
-
-              if (playhead >= frames[j]) {
-                fromFrame = frames[j];
-                fromValue = values[j];
-                toFrame = frames[j+1];
-                toValue = values[j+1];
-                if (j===lastFrame-1) {
-                  toFrame = fromFrame;
-                  toValue = fromValue;
-                }
-              }
-            }
-
-            // console.log(fromFrame, fromValue, toFrame, toValue, playhead);
-
-            value = ease.linear(0, playhead-fromFrame, fromValue, toValue-fromValue, toFrame-fromFrame);
-
-            actorObject.setAttribute(trackName, value);
-            // console.log(actorObject.id);
-          }
-        }
-      };
 
       
-
+      // INSTANCE INTERFACE
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      
       // Timeline Controls
-      
       return {
                 
         play: function () {
-          index = timelineCounter;
+          uuid = timelineCounter;
           addTimelineToPlayStack(this);
           lastPlayhead = timeNow();
         },
 
         // Stop the animation        
         pause: function () {
-          removeTimelineFromPlayStack(index);
-          index = false;
+          removeTimelineFromPlayStack(uuid);
+          uuid = false;
         },
 
-        // 
-        time: function (currentTime) {
-          if (index !== false) {
-            playhead += (currentTime-lastPlayhead)/1000
-            update();
+        // Updates the current global playhead based on the current global time
+        update: function (currentTime) {
+          if (uuid !== false) {
+            playhead += (currentTime-lastPlayhead)/1000;
+            updateTime();
             lastPlayhead = currentTime;
           }
         },
 
-        reset: function () {
+        // Restarts this animation timeline by resetting the playhead to 0
+        restart: function () {
           playhead = 0;
+          return this;
         },
 
-        // speed: function () {
-          
-        // },
-
-        onUpdate: function () {
-
+        // Sets the onUpdateCallback that is fired after each call to currenTime() from global timer
+        onUpdate: function (cb) {
+          onUpdateCallback = cb;
+          return this;
         },
 
-        onEnd: function () {
-          
+        //  Sets the onEndCallback that is fired when the animation playhead reaches the end frame
+        onEnd: function (cb) {
+          onEndCallback = cb;
+          return this;
+        },
+
+        // Very basic extend function, currently just used to extend easing when needed
+        extend: function (ref, obj) {
+          for (var i in obj) {
+            // console.log(i, obj, obj[i]);
+            // extend[ref][i] = obj;
+          }
         }
 
       };
@@ -223,25 +260,14 @@
 
   }
 
-  // 
 
-  // Expose animate intercace to the window
-  
-  window.animate = animate;
+  // INITIALIZE
+  ////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // Begin the global timer
-  
+  // Begin the global timer that updates all individual timelines
   initTimer();
 
+  // Expose globally namespaced animate interface to the window
+  window.animate = animate;
+
 })( this );
-
-
-
-
-
-
-
-
-
-
-
