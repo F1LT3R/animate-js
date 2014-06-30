@@ -21,7 +21,7 @@
 
 <script type="text/javascript">
 
-  // Add a new easing method to the options
+  // Add a new easing method
   animate().extend('easing', {
     outCubic: function (t, b, c, d) {
       return c*((t=t/d-1)*t*t + 1) + b;
@@ -34,7 +34,6 @@
   // Update the opacity
   function changeOpacity (obj, val) {
     obj.setAttribute('opacity', val);
-
     sherlock2.setAttribute('opacity', val);
   }
 
@@ -43,7 +42,7 @@
        0: 1,
        2: 0,
        4: 1
-    }, 'outCubic')
+    })
 
     // Provide a callback for each update of the timeline
     .onUpdate(changeOpacity)
@@ -54,7 +53,7 @@
 
   // We are going to use this to loop the animation
   function animationEnded () {
-    timeline.restart();
+    this.restart();
   }
 
   timeline.play();

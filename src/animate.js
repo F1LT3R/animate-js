@@ -1,6 +1,30 @@
-/* Animate JS
-   Alistair MacDonald
-   MIT License */
+/* 
+  animate-js
+  a micro-animation framework for JavaScript
+  
+  MIT License (MIT)
+  
+  Copyright © 2014 Alistair G MacDonald
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  THE SOFTWARE.
+
+  */
 
 (function( window ){
 
@@ -43,13 +67,14 @@
   
   // Add a timeline to the play stack
   function addTimelineToPlayStack (timeline) {
-    timelineCounter+=1;
     timelinePlayStack[timelineCounter] = timeline;
+    timelineCounter+=1;
   }
 
 
   // Remove a timeline from the play stack
   function removeTimelineFromPlayStack (uuid) {
+    timelinePlayStack[uuid].timelineReference = null;
     delete timelinePlayStack[uuid];
   }
 
@@ -97,6 +122,9 @@
       // The Universally Unique Identifier this timeline is resigstered by in the timelinePlayStack
       // ...the UUID is updated whenever timeline is added back to the timelinePlayStack
       var uuid,
+
+        // A back-reference to the timeline object in the timelinePlatStack
+        timelineReference,
           
         // Playhead represents the current time of the animation
         playhead = 0,
@@ -166,7 +194,7 @@
             fromValue = values[0],
             toFrame = frames[1],
             toValue = values[1],
-            
+
             i = 1,
             lastFrame = frames.length,
             
@@ -197,7 +225,7 @@
           // ...and the return value is a number...
           if(!isNaN(returnValue)) {
             // Pass the actor and the animation property value back
-            onUpdateCallback(actor, returnValue);
+            onUpdateCallback.call(timelineReference, actor, returnValue);
           }
         }
 
@@ -205,10 +233,10 @@
         if (onEndCallback) {
           // ...and the animation has reached the end...
           if (playhead >= frames[lastFrame-1]) {
-            // Pass the actor and value back to the end callback
-            onEndCallback(actor, returnValue);
             // Stop the timeline from playing
             removeTimelineFromPlayStack(uuid);
+            // Pass the actor and value back to the end callback
+            onEndCallback.call(timelineReference, actor, returnValue);
           }
         }
 
@@ -225,6 +253,7 @@
         play: function () {
           uuid = timelineCounter;
           addTimelineToPlayStack(this);
+          timelineReference = timelinePlayStack[uuid];
           lastPlayhead = timeNow();
         },
 
@@ -245,11 +274,10 @@
 
         // Restarts this animation timeline by resetting the playhead to 0
         restart: function () {
-          removeTimelineFromPlayStack(uuid);
           uuid = timelineCounter;
-          addTimelineToPlayStack(this);
-          lastPlayhead = timeNow();
           playhead = 0;
+          lastPlayhead = timeNow();
+          addTimelineToPlayStack(this);
         },
 
         // Sets the onUpdateCallback that is fired after each call to currenTime() from global timer
@@ -269,7 +297,13 @@
           for (var key in obj) {
             extend[ref][key] = obj[key];
           }
-        }
+        },
+
+        stopAll: function () {
+          for (uuid in timelinePlayStack) {
+            timelinePlayStack[uuid].pause();
+          }
+        },
 
       };
       
