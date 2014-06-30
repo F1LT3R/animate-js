@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Animate-js : a micro-animation framework for JavaScript" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Animate-js</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/F1LT3R/animate-js">View on GitHub</a>
+
+          <h1 id="project_title">Animate-js</h1>
+          <h2 id="project_tagline">a micro-animation framework for JavaScript</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/F1LT3R/animate-js/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/F1LT3R/animate-js/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="animate-js" class="anchor" href="#animate-js"><span class="octicon octicon-link"></span></a>animate-js</h1>
+
+<p><em>a micro-animation framework for JavaScript</em></p>
+
+<h2>
+<a name="concept" class="anchor" href="#concept"><span class="octicon octicon-link"></span></a>Concept</h2>
+
+<p><strong>animate-js</strong> is super-lightweight animation framework that can be used to animate <em>'anything'</em>.</p>
+
+<p>The library knows nothing about what kinds of things you are trying to animate, it doesn't change
+the properties of the things you are animating itself, but provides callbacks for you to do this yourself. Basic timeline controls are provided to manipulate animations from your own scripts.</p>
+
+<p>This was created to syncronize the animation of CSS properties and SVG values. The code needed to 
+work cross-browser on latest builds, and work on Internet Expolorer as far back as IE9.</p>
+
+<p><strong>Library size:</strong> ~1 kb</p>
+
+<h2>
+<a name="donate" class="anchor" href="#donate"><span class="octicon octicon-link"></span></a>Donate</h2>
+
+<p>This code is free to use and distribute with attribution under the MIT License.</p>
+
+<p>Bitcoin donations are always welcome if you use this code or find it helpful:</p>
+
+<p><a href="https://coinbase.com/checkouts/684007a4c9198aaf59a4cbf2b45a6472"><img src="https://coinbase.com/assets/buttons/donation_small-77a6e527206c0407ffd8b2e8b76556b0.png"></a></p>
+
+<h2>
+<a name="basic-usage" class="anchor" href="#basic-usage"><span class="octicon octicon-link"></span></a>Basic Usage</h2>
+
+<p>First we include the <em>animate.min.js</em> script in your page:</p>
+
+<pre><code>&lt;script src="animate.min.js" type="text/javascript" &gt;&lt;/script&gt;
+</code></pre>
+
+<p>Then define your timeline with an object-reference and an ojbect containing frames values. In the example below, we are controlling the opacity of a DOM element. We are getting the object using
+jquery with: <code>$('#someid')</code>.</p>
+
+<p>At second <code>0</code>, we want the opacity value to be <code>1</code>, at second <code>1</code> we want the  opacity value to be
+<code>0</code>; and so on.</p>
+
+<pre><code>var timeline = animate($('#someid'), {
+  0: 1,
+  1: 0,
+  2: 1 
+});
+</code></pre>
+
+<p>Provide an update callback. This is where you apply the animation to the object(s) you want to 
+animate. The scope of <em><code>this</code></em> within each callback is the timeline object.</p>
+
+<pre><code>// Provide a callback for each update of the timeline
+timeline.onUpdate(changeOpacity);
+</code></pre>
+
+<p>Your update callback make look somethinglike this:</p>
+
+<pre><code>function changeOpacity (obj, val) {
+  obj.setAttribute('opacity', val);
+}
+</code></pre>
+
+<p>Begin playing the animation.</p>
+
+<pre><code>timeline.play();
+</code></pre>
+
+<p>That's it!</p>
+
+<p>Simple.</p>
+
+<h2>
+<a name="timeline-control" class="anchor" href="#timeline-control"><span class="octicon octicon-link"></span></a>Timeline Control</h2>
+
+<h3>
+<a name="timelineplay" class="anchor" href="#timelineplay"><span class="octicon octicon-link"></span></a><code>timeline.play()</code>
+</h3>
+
+<p>Begins playing a timeline.</p>
+
+<h3>
+<a name="timelinepause" class="anchor" href="#timelinepause"><span class="octicon octicon-link"></span></a><code>timeline.pause()</code>
+</h3>
+
+<p>Pauses a timeline at it's current position.</p>
+
+<h3>
+<a name="timelinerestart" class="anchor" href="#timelinerestart"><span class="octicon octicon-link"></span></a><code>timeline.restart()</code>
+</h3>
+
+<ul>
+<li>Pauses a timeline at it's current position.</li>
+<li>Resets the playhead to the start of the animation.</li>
+<li>Begins playing the timeline again.</li>
+</ul><h3>
+<a name="timelineonupdatecallback" class="anchor" href="#timelineonupdatecallback"><span class="octicon octicon-link"></span></a><code>timeline.onUpdate(callback)</code>
+</h3>
+
+<p>Functions passed to onUpdate() will be fired every time the internal animation timer is fired.</p>
+
+<pre><code>function changeOpacity (obj, val) {
+  obj.setAttribute('opacity', val);
+}
+
+timeline.onUpdate(changeOpacity);
+</code></pre>
+
+<h3>
+<a name="timelineonendcallback" class="anchor" href="#timelineonendcallback"><span class="octicon octicon-link"></span></a><code>timeline.onEnd(callback)</code>
+</h3>
+
+<p>Functions passed to onEnd() will be fired once when the animation has finished. Before the callback
+is fired, the timeline will be stopped. You will have to call play if you want it to play again.</p>
+
+<pre><code>timeline.onEnd(callback);
+</code></pre>
+
+<h3>
+<a name="looping-timelines" class="anchor" href="#looping-timelines"><span class="octicon octicon-link"></span></a>Looping Timelines</h3>
+
+<p>Use the <code>onEnd(callback)</code> to loop a timeline, like this:</p>
+
+<pre><code>function restartCallBack () {
+  this.restart();
+};
+
+timeline.onEnd(restartCallback);
+</code></pre>
+
+<h2>
+<a name="extending-easing-types" class="anchor" href="#extending-easing-types"><span class="octicon octicon-link"></span></a>Extending Easing Types</h2>
+
+<p>Use the <code>extend()</code> method to add new types of easing. <strong>animate-js</strong> ships with <em>linear</em> only out of the box. You can find more easing extensions in <code>./tests/</code>.</p>
+
+<pre><code>// Add a new easing method
+animate().extend('easing', {
+  outCubic: function (t, b, c, d) {
+    return c*((t=t/d-1)*t*t + 1) + b;
+  }
+});
+</code></pre>
+
+<h2>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h2>
+
+<p>Comming soon.</p>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<pre><code>MIT License (MIT)
+
+Copyright © 2014 Alistair G MacDonald
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+</code></pre>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Animate-js maintained by <a href="https://github.com/F1LT3R">F1LT3R</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
