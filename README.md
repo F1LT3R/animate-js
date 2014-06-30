@@ -2,8 +2,6 @@
 
 *a micro-animation framework for JavaScript*
 
-[TOC]
-
 ##Concept
 
 **animate-js** is super-lightweight animation framework that can be used to animate *'anything'*.
@@ -23,30 +21,6 @@ This code is free to use and distribute with attribution under the MIT License.
 Bitcoin donations are always welcome if you use this code or find it helpful:
 
 <a class="coinbase-button" data-code="684007a4c9198aaf59a4cbf2b45a6472" data-button-style="donation_small" href="https://coinbase.com/checkouts/684007a4c9198aaf59a4cbf2b45a6472"><img src="https://coinbase.com/assets/buttons/donation_small-77a6e527206c0407ffd8b2e8b76556b0.png"></a><script src="https://coinbase.com/assets/button.js" type="text/javascript"></script>
-
-##License
-
-    MIT License (MIT)
-    
-    Copyright © 2014 Alistair G MacDonald
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    THE SOFTWARE.
 
 ##Basic Usage
 
@@ -142,8 +116,28 @@ Use the `extend()` method to add new types of easing. **animate-js** ships with 
 
 ##Examples
 
-Animating the opacity of an SVG.
+Comming soon.
 
-##Anything Else?
+##License
 
-No, that's all.
+    MIT License (MIT)
+    
+    Copyright © 2014 Alistair G MacDonald
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
