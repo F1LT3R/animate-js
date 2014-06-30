@@ -2,8 +2,6 @@
 
 *a micro-animation framework for JavaScript*
 
-[TOC]
-
 ##Concept
 
 **animate-js** is super-lightweight animation framework that can be used to animate *'anything'*.
