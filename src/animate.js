@@ -28,7 +28,7 @@
 
 (function( window ){
 
-  "use strict";
+  'use strict';
 
 
   // EXTEND
@@ -56,25 +56,24 @@
   var timelinePlayStack = {},
       
       // Counter used to create UUID's for each active timeline
-      timelineCounter = 0,
-      
-      // The global JavaScript timer that from which all timelines are updated
-      intervalTimer = null,
+      timelineCounter = -1,
       
       // Set the frames second
-      framesPerSecond = 24;
+      framesPerSecond = 24,
+      
+      // The global JavaScript timer that from which all timelines are updated
+      intervalTimer;
 
   
   // Add a timeline to the play stack
   function addTimelineToPlayStack (timeline) {
-    timelinePlayStack[timelineCounter] = timeline;
     timelineCounter+=1;
+    return (timelinePlayStack[timelineCounter] = timeline);
   }
 
 
   // Remove a timeline from the play stack
   function removeTimelineFromPlayStack (uuid) {
-    timelinePlayStack[uuid].timelineReference = null;
     delete timelinePlayStack[uuid];
   }
 
@@ -99,7 +98,7 @@
 
   // Gets the current Epoch Time
   function timeNow (){
-    return (+new Date());
+    return +new Date();
   }
 
 
@@ -131,9 +130,6 @@
 
         // Assume we want to start playing the newly created animation... 'right now'
         lastPlayhead = timeNow(),
-
-        // The UUID of this timeline
-        uuid,
 
         // The first argument passed is the object on which to act, the 'actor' on the stage
         actor = args[0],
@@ -251,21 +247,21 @@
       return {
                 
         play: function () {
+          timelineReference = addTimelineToPlayStack(this);
           uuid = timelineCounter;
-          addTimelineToPlayStack(this);
-          timelineReference = timelinePlayStack[uuid];
+          // timelineReference = timelinePlayStack[uuid];
           lastPlayhead = timeNow();
         },
 
         // Stop the animation        
         pause: function () {
           removeTimelineFromPlayStack(uuid);
-          uuid = false;
+          timelineReference = uuid = !1;
         },
 
         // Updates the current global playhead based on the current global time
         update: function (currentTime) {
-          if (uuid !== false) {
+          if (!uuid) {
             playhead += (currentTime-lastPlayhead)/1000;
             updateTime();
             lastPlayhead = currentTime;
@@ -274,10 +270,10 @@
 
         // Restarts this animation timeline by resetting the playhead to 0
         restart: function () {
-          uuid = timelineCounter;
           playhead = 0;
           lastPlayhead = timeNow();
           addTimelineToPlayStack(this);
+          uuid = timelineCounter;
         },
 
         // Sets the onUpdateCallback that is fired after each call to currenTime() from global timer
@@ -300,7 +296,7 @@
         },
 
         stopAll: function () {
-          for (uuid in timelinePlayStack) {
+          for (var uuid in timelinePlayStack) {
             timelinePlayStack[uuid].pause();
           }
         },
