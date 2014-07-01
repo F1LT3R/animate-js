@@ -4,7 +4,7 @@
   
   MIT License (MIT)
   
-  Copyright © 2014 Alistair G MacDonald
+  Copyright (c) 2014 Alistair G MacDonald
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -27,9 +27,6 @@
   */
 
 (function( window ){
-
-  'use strict';
-
 
   // EXTEND
   ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +53,7 @@
   var timelinePlayStack = {},
       
       // Counter used to create UUID's for each active timeline
-      timelineCounter = -1,
+      timelineCounter = 0,
       
       // Set the frames second
       framesPerSecond = 24,
@@ -68,7 +65,7 @@
   // Add a timeline to the play stack
   function addTimelineToPlayStack (timeline) {
     timelineCounter+=1;
-    return (timelinePlayStack[timelineCounter] = timeline);
+    return timelinePlayStack[timelineCounter] = timeline;
   }
 
 
@@ -249,7 +246,6 @@
         play: function () {
           timelineReference = addTimelineToPlayStack(this);
           uuid = timelineCounter;
-          // timelineReference = timelinePlayStack[uuid];
           lastPlayhead = timeNow();
         },
 
@@ -261,7 +257,7 @@
 
         // Updates the current global playhead based on the current global time
         update: function (currentTime) {
-          if (!uuid) {
+          if (uuid) {
             playhead += (currentTime-lastPlayhead)/1000;
             updateTime();
             lastPlayhead = currentTime;
@@ -295,10 +291,8 @@
           }
         },
 
-        stopAll: function () {
-          for (var uuid in timelinePlayStack) {
-            timelinePlayStack[uuid].pause();
-          }
+        killAll: function () {
+          timelinePlayStack = {};
         },
 
       };
@@ -306,6 +300,7 @@
     } (arguments));
 
   }
+
 
 
   // INITIALIZE
