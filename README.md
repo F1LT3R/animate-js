@@ -97,6 +97,23 @@ is fired, the timeline will be stopped. You will have to call play if you want i
     
     timeline.onEnd(callback);
 
+###`timeline.sleep()`
+
+Kills the global interval timer. For use when the you know that no animation should be happening for a longer period of time.
+
+###`timeline.wake()`
+
+Re-initializes the global interval timer. When you have turned off all animation for a while and want to bring things back to life.
+
+Note: the timelines will continue to play from their playhead positions.
+
+
+###`timeline.destroy()`
+
+Unloads the library. Unbinds from the window.
+
+(UNFINISHED)
+
 ###Looping Timelines
 
 Use the `onEnd(callback)` to loop a timeline, like this:
