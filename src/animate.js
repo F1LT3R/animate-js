@@ -291,9 +291,29 @@
           }
         },
 
+        // Removed all timelines from the stack, returns the stack incase you want to add something back
         killAll: function () {
-          timelinePlayStack = {};
+          return timelinePlayStack = {};
         },
+
+        // Sleep stops the timer from ticking (for when you dont want to animate anything)
+        // WARNING: This puts ALL timelines to sleep.
+        sleep: function () {
+          clearInterval(intervalTimer);
+        },
+
+        // Wake reinitializes the global timer which the animations are synced to
+        // NOT: Timelines playheads will still be where they left off when the timer wakes up
+        wake: function () {
+          initTimer()
+        },
+
+        //Destorys/kills/unloads animate-js library
+        destroy: function () {
+          clearInterval(intervalTimer);
+          delete window.animate;
+        },
+
 
       };
       
